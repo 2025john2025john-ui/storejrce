@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>BlueCart Marketplace</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    :root{--blue:#1565c0;--blueDark:#0d47a1;--muted:#6b7280;--bg:#f3f8ff;--white:#fff;--shadow:0 6px 20px rgba(21,101,192,.14)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#e6f0ff,#f7fbff 210px,#f3f8ff);max-width:430px;margin-inline:auto;min-height:100vh;color:#1f2937;padding-bottom:84px}
+    .header{position:sticky;top:0;z-index:50;background:var(--blue);color:#fff;padding:14px 12px;border-bottom-left-radius:18px;border-bottom-right-radius:18px;box-shadow:var(--shadow)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .title{margin:0;font-size:20px;font-weight:800}
+    .search{display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:8px 10px;margin-top:10px}
+    .search input{border:none;outline:none;width:100%;font-size:14px}
+    .slider-wrap{margin:12px 10px 0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+    .slider{display:flex;transition:transform .45s ease}.slider a,.slider img{width:100%;flex:0 0 100%;aspect-ratio:16/7;object-fit:contain;background:#fff;display:block}
+    .section-title{padding:14px 12px 8px;font-size:12px;font-weight:800;color:var(--blue);letter-spacing:1px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 10px}
+    .card{background:#fff;border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+    .shop-card{cursor:pointer}.shop-card img{width:100%;height:95px;object-fit:cover;background:#dfeaff}.shop-name{padding:10px;font-size:13px;font-weight:700;color:var(--blue)}
+    .pill{display:inline-block;margin:0 10px 10px;padding:3px 8px;border-radius:30px;background:#e7f2ff;color:var(--blue);font-size:10px}
+    .panel{padding:12px}.box{background:#fff;border-radius:12px;padding:10px;box-shadow:var(--shadow);margin-bottom:10px}
+    .product{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:10px;margin:0 10px 10px}
+    .product-top{display:flex;gap:10px}.product img{width:94px;height:94px;border-radius:10px;object-fit:cover;background:#edf2ff}
+    .muted{color:var(--muted);font-size:12px}.price{font-weight:800;color:var(--blueDark)}
+    .btn{border:none;background:var(--blue);color:#fff;padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn.outline{background:#fff;color:var(--blue);border:1px solid #b6d4ff}.btn.full{width:100%}
+    .field{margin-bottom:8px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:4px}
+    .field input,.field select{width:100%;border:1px solid #d1ddf3;border-radius:10px;padding:10px 11px;font-size:14px;outline:none}
+    .line{display:flex;justify-content:space-between;font-size:13px;margin:6px 0}
+    .qty-wrap{display:flex;align-items:center;gap:6px}
+    .qty-btn{width:26px;height:26px;border:none;border-radius:8px;background:#e7f2ff;color:#0d47a1;font-weight:800;cursor:pointer}
+    .bottom{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:auto;background:#fff;display:flex;box-shadow:0 -6px 24px rgba(0,0,0,.14);padding:8px 0;z-index:60}
+    .tab{flex:1;text-align:center;color:#7b8794;font-size:11px;font-weight:700;position:relative;cursor:pointer}.tab i{display:block;font-size:18px;margin-bottom:4px}.tab.active{color:var(--blue)}
+    .badge{position:absolute;top:0;right:26%;background:#ff4d4f;color:#fff;border-radius:20px;padding:1px 6px;font-size:10px}
+    .hidden{display:none!important}.wallet{font-size:28px;font-weight:900;color:var(--blueDark)}
+    .toast{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;display:none;z-index:90}
+    .progress{position:fixed;inset:0;display:none;z-index:100;pointer-events:none}
+    .progress::before{content:'';position:absolute;inset:0;background:rgba(15,23,42,.22)}
+    .progress-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#0d47a1;color:#fff;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:700;box-shadow:0 10px 28px rgba(13,71,161,.35);text-align:center;min-width:210px;max-width:84%}
+    .modal{position:fixed;inset:0;display:none;z-index:120}.modal::before{content:'';position:absolute;inset:0;background:rgba(15,23,42,.45)}
+    .modal-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92%,390px);background:#fff;border-radius:14px;padding:14px;box-shadow:0 12px 30px rgba(0,0,0,.22)}
+    .modal-title{font-size:17px;font-weight:800;color:#0d47a1;margin-bottom:8px}.modal-id{font-size:15px;font-weight:800;color:#0d47a1;background:#eef5ff;padding:8px 10px;border-radius:8px;margin:10px 0}
+    .modal-actions{display:flex;gap:8px;margin-top:10px}
+    .linkbtn{display:inline-block;font-size:12px;color:#fff;background:#0d47a1;padding:8px 10px;border-radius:8px;text-decoration:none;margin-top:6px;margin-right:4px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#eaf3ff;border-radius:10px;padding:8px}.stat b{display:block;color:#0d47a1;font-size:16px}
+    .mini-grid-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;padding:0 10px 10px}
+    .mini-grid{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 16px)/3);gap:8px;padding-bottom:2px}
+    .mini-grid-wrap::-webkit-scrollbar{height:6px}
+    .mini-grid-wrap::-webkit-scrollbar-thumb{background:#bcd7ff;border-radius:20px}
+    .mini-card{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:8px;scroll-snap-align:start}
+    .mini-card img{width:100%;height:72px;object-fit:cover;border-radius:8px;background:#edf2ff}
+    .mini-name{font-size:11px;font-weight:700;color:#0d47a1;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-price{font-size:11px;color:#374151}.store-search{padding:8px 10px}.store-search .search{margin-top:0}
+    .orders-tools,.history-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .history-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+    .chip{background:#eaf3ff;border-radius:8px;padding:6px;text-align:center;font-size:10px}
+    .chip b{display:block;font-size:14px;color:#0d47a1}
+    .table-wrap{overflow-x:auto}
+    .items-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+    .items-table th,.items-table td{border:1px solid #dbeafe;padding:6px;vertical-align:top;text-align:left;word-break:break-word}
+    .items-table th{background:#f1f7ff;color:#0d47a1}
+    .tabs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    .tab-btn{border:1px solid #b6d4ff;background:#fff;color:#0d47a1;border-radius:8px;padding:7px 10px;font-weight:700;font-size:12px;cursor:pointer}
+    .tab-btn.active{background:#0d47a1;color:#fff}
+    .copy-row{display:flex;gap:6px;align-items:center;margin:6px 0}
+    .copy-row input{flex:1;border:1px solid #d1ddf3;border-radius:8px;padding:8px;font-size:12px}
+    .seller-main-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+    .seller-main-tab{border:1px solid #b6d4ff;background:#fff;color:#0d47a1;border-radius:10px;padding:9px 6px;font-size:11px;font-weight:800;cursor:pointer;text-align:center}
+    .seller-main-tab i{display:block;font-size:15px;margin-bottom:4px}
+    .seller-main-tab.active{background:#0d47a1;color:#fff}
+    .courier-chip{display:inline-flex;align-items:center;gap:6px;background:#eaf3ff;color:#0d47a1;border:1px solid #cde2ff;border-radius:20px;padding:5px 8px;font-size:11px;margin:4px 4px 0 0}
+    .delivery-warning{font-size:12px;color:#b91c1c;font-weight:700;margin-top:4px}
+    .wb-hidden{position:fixed;left:-99999px;top:-99999px;pointer-events:none;opacity:0}
+    .wb-card{width:3in;height:3in;background:#fff;border:2px solid #000;padding:8px;box-sizing:border-box;font-size:10px;font-family:Arial,sans-serif;color:#000}
+    .wb-head{text-align:center;font-weight:700;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:4px}
+    .wb-shop{font-size:12px;font-weight:800;line-height:1.1}
+    .wb-shop-info{font-size:9px;line-height:1.2}
+    .wb-orderid{font-size:16px;font-weight:900;text-align:center;border:2px dashed #000;margin:4px 0;padding:2px;letter-spacing:.5px}
+    .wb-section{margin-top:4px}
+    .wb-label{font-weight:700;font-size:9px}
+    .wb-table{width:100%;border-collapse:collapse;font-size:9px;margin-top:3px}
+    .wb-table th,.wb-table td{border:1px solid #000;padding:2px;text-align:left;vertical-align:top;word-break:break-word}
+    .wb-table th{background:#eee}
+    .wb-total{text-align:right;font-weight:700;margin-top:3px;font-size:10px}
+    .timeline{position:relative;margin-top:8px;padding-left:22px}
+    .timeline::before{content:'';position:absolute;left:8px;top:2px;bottom:2px;width:2px;background:#bfdbfe}
+    .timeline-item{position:relative;padding:2px 0 8px}
+    .timeline-item::before{content:'';position:absolute;left:-18px;top:6px;width:10px;height:10px;border-radius:50%;background:#0d47a1;box-shadow:0 0 0 2px #dbeafe}
+    .timeline-time{font-size:11px;color:#6b7280}
+    .timeline-status{font-size:13px;font-weight:700;color:#0d47a1}
+  </style>
+</head>
+<body>
+  <div id="progress" class="progress"><div id="progressText" class="progress-inner"></div></div>
+  <div id="toast" class="toast"></div>
+  <div id="orderModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-title">Order Received! Thank you for your purchase.</div>
+      <div class="muted">Order details were sent to customer and seller email: <b>Order Received - OrderID</b>.</div>
+      <div class="muted" style="margin-top:8px">Your order ID is:</div>
+      <div id="orderModalID" class="modal-id"></div>
+      <div class="muted">Track your order through the cart. Please copy your order ID and take a screenshot for your reference.</div>
+      <div class="modal-actions">
+        <button class="btn outline" onclick="copyOrderIdFromModal()">Copy ID</button>
+        <button class="btn" onclick="closeOrderModal()">Close</button>
+      </div>
+    </div>
+  </div>
+  <div id="waybillRenderRoot" class="wb-hidden"></div>
+
+  <header class="header">
+    <div class="row">
+      <h1 id="brandTitle" class="title">BlueCart MARKETPLACE</h1>
+      <button class="btn outline" id="btnBack" onclick="goHome()" style="display:none"><i class="fa fa-arrow-left"></i></button>
+    </div>
+    <div class="search" id="searchWrap">
+      <i class="fa fa-search" style="color:#6b7280"></i>
+      <input id="searchShop" placeholder="Search Shop (Shop Name)" oninput="filterStores()" />
+    </div>
+  </header>
+
+  <section id="homeSection">
+    <div class="slider-wrap" id="sliderWrap"><div class="slider" id="slider"></div></div>
+    <div class="section-title">NEW PRODUCTS</div>
+    <div class="mini-grid-wrap"><div id="newProducts" class="mini-grid"></div></div>
+    <div class="section-title">SHOPS</div>
+    <div id="shopGrid" class="grid"></div>
+  </section>
+
+  <section id="productsSection" class="hidden"></section>
+
+  <section id="cartSection" class="hidden panel">
+    <div class="box"><strong>Cart</strong><div id="cartItems" style="margin-top:8px"></div><div class="line"><b>Total</b><b id="cartTotal">₱0.00</b></div></div>
+    <div class="box">
+      <strong>Checkout</strong>
+      <div class="field"><label>Customer Name</label><input id="cName"></div>
+      <div class="field"><label>Email</label><input id="cEmail" type="email"></div>
+      <div class="field"><label>Contact Number</label><input id="cContact"></div>
+      <div class="field"><label>Region</label><input id="aRegion"></div>
+      <div class="field"><label>Province</label><input id="aProvince"></div>
+      <div class="field"><label>City/Municipality</label><input id="aCity"></div>
+      <div class="field"><label>Barangay</label><input id="aBarangay"></div>
+      <div class="field"><label>Landmark</label><input id="aLandmark"></div>
+      <div class="field"><label>Mode</label><select id="mode" onchange="refreshPaymentOptions()"><option>Cash on Delivery</option><option>Cash on Pickup</option></select></div>
+      <div class="field"><label>Payment</label><select id="payment" onchange="refreshPaymentOptions()"><option>COD/ COP</option><option>GCash</option></select></div>
+      <div id="courierField" class="field hidden"><label><i class="fa fa-truck-fast"></i> Courier</label><select id="courier"></select></div>
+      <div id="deliveryDisabledMsg" class="delivery-warning hidden"><i class="fa fa-triangle-exclamation"></i> Delivery is Disabled for this shop.</div>
+      <div id="gcashBox" class="box hidden" style="margin:0 0 10px 0"></div>
+      <div id="proofField" class="field hidden"><label>GCash Reference Number</label><input id="proof"></div>
+      <button class="btn full" onclick="placeOrder()">Place Order</button>
+    </div>
+    <div class="box"><strong>Track Order</strong><div class="field"><label>Order ID</label><input id="trackId"></div><button class="btn full outline" onclick="trackOrder()">Track</button><div id="trackResult" class="muted" style="margin-top:8px"></div></div>
+  </section>
+
+  <section id="sellerSection" class="hidden panel">
+    <div id="sellerLoginPanel" class="box">
+      <strong>Seller Center</strong>
+      <div class="field"><label>Email</label><input id="sEmail"></div>
+      <div class="field"><label>BusinessID</label><input id="sBusinessID"></div>
+      <div class="field"><label>Password</label><input id="sPassword" type="password"></div>
+      <button class="btn full" onclick="handleSellerLogin()">Login</button>
+      <a class="linkbtn" target="_blank" href="https://forms.gle/4oQqkYkUcF1kL74v6">Register</a>
+    </div>
+
+    <div id="sellerDash" class="hidden">
+      <div class="box">
+        <div class="muted">Wallet</div>
+        <div class="wallet">₱<span id="walletValue">0.00</span></div>
+        <div class="muted" id="sellerMeta"></div>
+        <a class="linkbtn" target="_blank" href="https://forms.gle/xVLwRTQhxEYAq72D9">Request Listing</a>
+      </div>
+
+      <div class="seller-main-tabs">
+        <button class="seller-main-tab active" id="sellerMainOverview" onclick="showSellerMainTab('overview')"><i class="fa fa-chart-line"></i>Overview</button>
+        <button class="seller-main-tab" id="sellerMainSecurity" onclick="showSellerMainTab('security')"><i class="fa fa-shield-halved"></i>Security</button>
+        <button class="seller-main-tab" id="sellerMainProducts" onclick="showSellerMainTab('products')"><i class="fa fa-box-open"></i>Products</button>
+        <button class="seller-main-tab" id="sellerMainOrders" onclick="showSellerMainTab('orders')"><i class="fa fa-receipt"></i>Orders</button>
+        <button class="seller-main-tab" id="sellerMainHistory" onclick="showSellerMainTab('history')"><i class="fa fa-clock-rotate-left"></i>History</button>
+        <button class="seller-main-tab" id="sellerMainDelete" onclick="showSellerMainTab('delete')"><i class="fa fa-user-xmark"></i>Delete</button>
+        <button class="seller-main-tab" id="sellerMainAgreement" onclick="showSellerMainTab('agreement')"><i class="fa fa-file-signature"></i>Print Agreement</button>
+      </div>
+
+      <div id="sellerPaneOverview">
+        <div class="box"><strong>Dashboard Summary</strong><div id="sellerStats" class="stats"></div></div>
+        <div class="box">
+          <strong><i class="fa fa-truck-fast"></i> Manage Couriers</strong>
+          <div class="muted">Add up to 3 couriers (LBC, J&amp;T, or Others custom).</div>
+          <div id="courierManagerList" style="margin-top:8px"></div>
+          <div class="field" style="margin-top:8px"><label>Add Courier</label>
+            <select id="courierPreset" onchange="toggleCustomCourierInput()">
+              <option value="">Select courier</option>
+              <option value="LBC">LBC</option>
+              <option value="J&T">J&amp;T</option>
+              <option value="__custom__">Others (custom)</option>
+            </select>
+          </div>
+          <div class="field hidden" id="customCourierField"><label>Custom Courier</label><input id="customCourierInput" placeholder="e.g. Ninja Van"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn outline" onclick="addCourierFromUI()"><i class="fa fa-plus"></i> Add</button>
+            <button class="btn" onclick="saveSellerCouriers()"><i class="fa fa-floppy-disk"></i> Save Couriers</button>
+          </div>
+        </div>
+        <div class="box">
+          <strong>Seller Links</strong>
+          <div class="tabs">
+            <button id="linksTabShop" class="tab-btn active" onclick="showLinksTab('shop')">Shop Link</button>
+            <button id="linksTabProduct" class="tab-btn" onclick="showLinksTab('product')">Product Links</button>
+          </div>
+          <div id="shopLinkPane" style="margin-top:8px"></div>
+          <div id="productLinksPane" class="hidden" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <div id="sellerPaneSecurity" class="hidden">
+        <div class="box">
+          <strong>Account Security</strong>
+          <div class="field"><label>Current Password</label><input id="currentPassword" type="password"></div>
+          <div class="field"><label>New Password (min 8 chars)</label><input id="newPassword" type="password"></div>
+          <div class="field"><label>Confirm New Password</label><input id="confirmPassword" type="password"></div>
+          <button class="btn full" onclick="changeSellerPassword()">Change Password</button>
+        </div>
+      </div>
+
+      <div id="sellerPaneProducts" class="hidden">
+        <div class="box"><strong>Products</strong><div id="sellerProducts" class="muted" style="margin-top:8px"></div></div>
+      </div>
+
+      <div id="sellerPaneOrders" class="hidden">
+        <div class="box">
+          <strong>Orders</strong>
+          <div class="orders-tools">
+            <input id="ordersSearch" placeholder="Search Order ID" oninput="renderSellerOrders()" />
+            <select id="ordersSort" onchange="renderSellerOrders()">
+              <option value="latest">Latest first</option>
+              <option value="status-az">Status (A-Z)</option>
+              <option value="status-za">Status (Z-A)</option>
+            </select>
+            <button class="btn outline" onclick="clearOrdersFilters()">Clear</button>
+          </div>
+          <div id="sellerOrders" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <div id="sellerPaneHistory" class="hidden">
+        <div class="box">
+          <strong>Order History</strong>
+          <div class="history-tools">
+            <input id="historySearch" placeholder="Search Order ID / customer" oninput="renderSellerHistory()" />
+            <select id="historyStatus" onchange="renderSellerHistory()"><option value="all">All Statuses</option></select>
+            <select id="historySort" onchange="renderSellerHistory()"><option value="latest">Latest first</option><option value="oldest">Oldest first</option><option value="highest">Highest total</option><option value="lowest">Lowest total</option></select>
+            <button class="btn outline" onclick="clearHistoryFilters()">Clear filters</button>
+          </div>
+          <div id="historySummary" class="history-summary"></div>
+          <div id="sellerHistory" class="muted" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+
+      <div id="sellerPaneAgreement" class="hidden">
+        <div class="box">
+          <strong><i class="fa fa-file-signature"></i> Print Agreement</strong>
+          <div class="muted" style="margin-top:6px">Generate a seller agreement document with your account information.</div>
+          <div class="field" style="margin-top:8px"><label>Seller Name</label><input id="agreementSellerName" placeholder="Enter seller full name"></div>
+          <div class="field"><label>Business Name</label><input id="agreementBusinessName" readonly></div>
+          <div class="field"><label>Business ID</label><input id="agreementBusinessID" readonly></div>
+          <div class="field"><label>Email</label><input id="agreementEmail" readonly></div>
+          <button class="btn full" onclick="printSellerAgreement()"><i class="fa fa-print"></i> Print Agreement</button>
+        </div>
+      </div>
+
+      <div id="sellerPaneDelete" class="hidden">
+        <div class="box">
+          <strong><i class="fa fa-user-xmark"></i> Request Account Deletion</strong>
+          <div class="muted" style="margin-top:8px">You can submit an account deletion request using the official page below.</div>
+          <a class="linkbtn" target="_blank" href="https://sites.google.com/view/jrce-bluecart/account-deletion"><i class="fa fa-up-right-from-square"></i> Open Deletion Request Page</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="bottom">
+    <div id="tabHome" class="tab active" onclick="switchTab('home')"><i class="fa fa-house"></i>HOME</div>
+    <div id="tabCart" class="tab" onclick="switchTab('cart')"><i class="fa fa-cart-shopping"></i>CART <span id="cartBadge" class="badge">0</span></div>
+    <div id="tabSeller" class="tab" onclick="switchTab('seller')"><i class="fa fa-store"></i>SELLER CENTER</div>
+  </nav>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxID_MUnm8_WTS4gaXr9628kIftDDJ-VmysPk7Ey05SMchaYkCF22YOCIxTY_NUIN7r/exec';
+const ORDER_STATUSES = ['Pending','Paid','Preparing','Ready for Pickup','Ready for Delivery','Shipped','In Transit','Out for Delivery','Delivered','Delivery Attempt Failed','Delivery Rescheduled','Picked-up','Completed','Cancelled','Cancelled due to duplicate order'];
+let shops=[]; let banners=[]; let currentShop=null; let cart=[]; let sellerData=null; let currentStoreProducts=[]; let sellerOrdersData=[]; let sellerProductsData=[]; let sellerCouriers=[];
+let sellerRealtimeTimer = null; let sellerRealtimeBusy = false; let sliderTimer = null;
+
+const fmt = n => `₱${Number(n||0).toFixed(2)}`;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',1600); }
+function setProgress(msg){ const p=document.getElementById('progress'); const text=document.getElementById('progressText'); if(!msg){p.style.display='none';return;} text.textContent=msg; p.style.display='block'; }
+function splitStatusParts(v){
+  const raw = String(v || '').trim();
+  if(!raw) return { status:'', remark:'' };
+  const idxComma = raw.indexOf(',');
+  const idxColon = raw.indexOf(':');
+  let idx = -1;
+  if(idxComma >= 0 && idxColon >= 0) idx = Math.min(idxComma, idxColon);
+  else idx = idxComma >= 0 ? idxComma : idxColon;
+  if(idx < 0) return { status:raw, remark:'' };
+  return { status:raw.slice(0, idx).trim(), remark:raw.slice(idx + 1).trim() };
+}
+function baseStatus(v){ return splitStatusParts(v).status; }
+function statusRemark(v){ return splitStatusParts(v).remark; }
+function safeKey(v){ return String(v||'').replace(/[^a-zA-Z0-9_-]/g, '_'); }
+function escapeHtml(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toClickableHtml(v){
+  const escaped = escapeHtml(v);
+  const linked = escaped
+    .replace(/(https?:\/\/[^\s<]+)/gi, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/(^|\s)([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})(?=$|\s)/gi, (m,prefix,email)=>`${prefix}<a href="mailto:${email}">${email}</a>`);
+  return linked.replace(/\r?\n/g, '<br>');
+}
+function courierIconClass(name){
+  const n = String(name||'').toUpperCase();
+  if(n.includes('LBC')) return 'fa-truck-fast';
+  if(n.includes('J&T') || n.includes('JNT')) return 'fa-box';
+  return 'fa-truck';
+}
+function getCouriersList(source){
+  return String(source || '').split(',').map(v=>v.trim()).filter(Boolean).slice(0,3);
+}
+function normalizeCourierName(v){ return String(v||'').trim(); }
+function parseTimeline(raw){
+  try {
+    const arr = JSON.parse(raw || '[]');
+    if(Array.isArray(arr)) return arr;
+  } catch (e) {}
+  return [];
+}
+function timelineToHtml(raw){
+  const entries = parseTimeline(raw);
+  if(!entries.length) return '<div class="muted">No timeline data.</div>';
+  return `<div class='timeline'>${entries.map(e=>`<div class='timeline-item'><div class='timeline-time'>${escapeHtml(e.time || '-')}</div><div class='timeline-status'>${escapeHtml(baseStatus(e.status || '')) || '-'}</div></div>`).join('')}</div>`;
+}
+
+async function api(payload, progressText=''){
+  if(progressText) setProgress(progressText);
+  try {
+    const res = await fetch(API_URL, { method:'POST', body:JSON.stringify(payload) });
+    return await res.json();
+  } catch (e) {
+    toast('Network/API error');
+    throw e;
+  } finally {
+    if(progressText) setProgress('');
+  }
+}
+
+function switchTab(tab){
+  ['tabHome','tabCart','tabSeller'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  ['homeSection','productsSection','cartSection','sellerSection'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('btnBack').style.display='none';
+  document.getElementById('searchWrap').classList.remove('hidden');
+  document.getElementById('sliderWrap').classList.remove('hidden');
+  document.getElementById('brandTitle').textContent='BLUECART MARKETPLACE';
+  if(tab==='home'){ tabHome.classList.add('active'); homeSection.classList.remove('hidden'); }
+  if(tab==='cart'){ tabCart.classList.add('active'); cartSection.classList.remove('hidden'); renderCart(); }
+  if(tab==='seller'){ tabSeller.classList.add('active'); sellerSection.classList.remove('hidden'); }
+}
+function goHome(){ switchTab('home'); }
+
+function renderBanners(){
+  const slider = document.getElementById('slider');
+  const fallback = [
+    { BannerURL:'https://i.imgur.com/HFMWnrW.png', GoToULR:'' },
+    { BannerURL:'https://i.imgur.com/KZ6tVum.png', GoToULR:'' }
+  ];
+  const source = banners.length ? banners : fallback;
+  slider.innerHTML = source.map(b => {
+    const goto = String(b.GoToULR || b.GoToURL || '').trim();
+    const img = `<img src="${escapeHtml(b.BannerURL || '')}"/>`;
+    return goto ? `<a href="${escapeHtml(goto)}" target="_blank" rel="noopener noreferrer">${img}</a>` : img;
+  }).join('');
+}
+function startSlider(){
+  const s=document.getElementById('slider');
+  if(sliderTimer) clearInterval(sliderTimer);
+  let i=0;
+  const count = s.children.length || 1;
+  sliderTimer = setInterval(()=>{i=(i+1)%count; s.style.transform=`translateX(-${i*100}%)`;},4000);
+}
+
+async function loadShops(){
+  const [businesses, bannersRaw] = await Promise.all([
+    api({action:'getBusinesses'}, 'Loading shops...'),
+    api({action:'getBanners'})
+  ]);
+  shops = Array.isArray(businesses) ? businesses : [];
+  banners = Array.isArray(bannersRaw) ? bannersRaw : [];
+  renderBanners();
+  startSlider();
+  renderShops(shops);
+  await loadNewProducts();
+}
+
+async function loadNewProducts(){
+  const listings = await api({action:'getListings'}, 'Loading new products...');
+  const sorted = (Array.isArray(listings) ? listings : []).sort((a,b)=>parseDate(b.Date)-parseDate(a.Date));
+  const latest = sorted.slice(0,12);
+  newProducts.innerHTML = latest.map(p=>`<div class="mini-card"><img src="${p.Image||''}"><div class="mini-name">${p.Name||''}</div><div class="mini-price">${fmt(p.Price)}</div></div>`).join('') || '<div class="muted">No new products.</div>';
+}
+
+function parseDate(v){
+  const raw = String(v || '').trim();
+  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])).getTime();
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+}
+
+function renderShops(list){
+  shopGrid.innerHTML = list.map(s=>`<div class="card shop-card" onclick="openShop('${s.BusinessID}')"><img src="${s.Logo||''}"><div class="shop-name">${s.Name||''}</div><div class="pill">ACTIVE</div></div>`).join('') || '<div class="muted">No active shops.</div>';
+}
+function filterStores(){ const q=searchShop.value.toLowerCase(); renderShops(shops.filter(s=>(s.Name||'').toLowerCase().includes(q))); }
+
+async function openShop(businessID){
+  currentShop = shops.find(s=>String(s.BusinessID)===String(businessID)) || null;
+  const items = await api({action:'getListings', businessID}, 'Loading products...');
+  currentStoreProducts = Array.isArray(items) ? items : [];
+  homeSection.classList.add('hidden');
+  productsSection.classList.remove('hidden');
+  btnBack.style.display='inline-block';
+  searchWrap.classList.add('hidden');
+  sliderWrap.classList.add('hidden');
+  brandTitle.textContent = currentShop?.Name || 'Shop';
+  productsSection.innerHTML = `<div class="store-search"><div class="search"><i class="fa fa-search" style="color:#6b7280"></i><input id="storeSearchInput" placeholder="Search in-store product" oninput="filterStoreProducts()"></div></div><div id="storeProductsWrap"></div>`;
+  renderStoreProducts(currentStoreProducts);
+}
+
+function renderStoreProducts(items){
+  const wrap = document.getElementById('storeProductsWrap');
+  if(!wrap) return;
+  wrap.innerHTML = (items||[]).map(x=>`<div class="product"><div class="product-top"><img src="${x.Image||''}"><div style="flex:1"><div style="font-weight:800">${x.Name||''}</div><div class="muted">Stock: ${x.Stock||0}</div><div class="price">${fmt(x.Price)}</div><button class="btn" onclick='addToCart(${JSON.stringify(JSON.stringify(x))})'>Add to Cart</button></div></div><details><summary>View details</summary><div class="muted" style="margin-top:6px">${toClickableHtml(x.Desc||'-')}</div></details></div>`).join('') || '<div class="box muted" style="margin:0 10px 10px">No products found.</div>';
+}
+
+function filterStoreProducts(){
+  const q = (document.getElementById('storeSearchInput')?.value || '').toLowerCase();
+  const filtered = currentStoreProducts.filter(p => String(p.Name||'').toLowerCase().includes(q) || String(p.Desc||'').toLowerCase().includes(q));
+  renderStoreProducts(filtered);
+}
+
+function updateCartBadge(){ cartBadge.textContent = cart.reduce((n, i) => n + Number(i.Qty || 0), 0); }
+function addToCart(raw){ const item = JSON.parse(raw); const idx = cart.findIndex(c => String(c.ListingID) === String(item.ListingID)); if(idx >= 0){ cart[idx].Qty += 1; } else { cart.push({ ListingID:item.ListingID, BusinessID:item.BusinessID, Name:item.Name, Price:Number(item.Price||0), Qty:1 }); } updateCartBadge(); toast('Added to cart'); }
+function changeQty(listingID, delta){ const idx = cart.findIndex(c => String(c.ListingID) === String(listingID)); if(idx < 0) return; cart[idx].Qty = Math.max(1, Number(cart[idx].Qty || 1) + delta); renderCart(); }
+function removeCartItem(listingID){ cart = cart.filter(c => String(c.ListingID) !== String(listingID)); renderCart(); }
+
+function renderCart(){
+  if(!cart.length){ cartItems.innerHTML='<div class="muted">Cart is empty.</div>'; cartTotal.textContent='₱0.00'; updateCartBadge(); return; }
+  cartItems.innerHTML = cart.map(i=>`<div class="line"><span>${i.Name}<br><small class="muted">${fmt(i.Price)} each</small></span><span class="qty-wrap"><button class="qty-btn" onclick="changeQty('${i.ListingID}',-1)">−</button><b>${i.Qty}</b><button class="qty-btn" onclick="changeQty('${i.ListingID}',1)">+</button><button class="qty-btn" onclick="removeCartItem('${i.ListingID}')"><i class="fa fa-trash"></i></button></span></div>`).join('');
+  cartTotal.textContent = fmt(cart.reduce((a,b)=>a+b.Price*b.Qty,0));
+  updateCartBadge();
+  refreshPaymentOptions();
+}
+
+function refreshPaymentOptions(){
+  const modeVal = mode.value, paymentVal = payment.value;
+  courierField.classList.toggle('hidden', modeVal!=='Cash on Delivery');
+  const couriers = getCouriersList(currentShop?.Couriers);
+  const deliveryDisabled = modeVal==='Cash on Delivery' && couriers.length===0;
+  deliveryDisabledMsg.classList.toggle('hidden', !deliveryDisabled);
+  if(modeVal==='Cash on Delivery' && currentShop){
+    courier.innerHTML = couriers.map(c=>`<option>${c}</option>`).join('');
+  }
+  proofField.classList.toggle('hidden', paymentVal!=='GCash');
+  if(paymentVal==='GCash' && currentShop){
+    gcashBox.classList.remove('hidden');
+    gcashBox.innerHTML = `<div class='muted'>Pay to:</div><div><b>${currentShop.GcashName||'-'}</b> (${currentShop.GcashNum||'-'})</div>${currentShop.GcashQRURL ? `<img src='${currentShop.GcashQRURL}' style='width:180px;max-width:100%;margin-top:8px;border-radius:8px'>` : ''}`;
+  } else { gcashBox.classList.add('hidden'); gcashBox.innerHTML=''; }
+}
+
+function buildAddress(){ return [`Region: ${aRegion.value}`,`Province: ${aProvince.value}`,`City/Municipality: ${aCity.value}`,`Barangay: ${aBarangay.value}`,`Landmark: ${aLandmark.value}`].join(' | '); }
+
+async function placeOrder(){
+  if(!cart.length) return toast('Cart is empty');
+  if(!cName.value.trim() || !cEmail.value.trim() || !cContact.value.trim()) return toast('Fill required fields');
+  if(payment.value==='GCash' && !proof.value.trim()) return toast('GCash reference required');
+
+  if(mode.value==='Cash on Delivery'){
+    const selectedBusinessIDs = [...new Set(cart.map(i=>String(i.BusinessID)))];
+    const hasDisabledDelivery = selectedBusinessIDs.some(id => {
+      const shop = shops.find(s=>String(s.BusinessID)===id);
+      return getCouriersList(shop?.Couriers).length===0;
+    });
+    if(hasDisabledDelivery){
+      toast('Delivery is Disabled for at least one shop.');
+      return;
+    }
+  }
+
+  const grouped = {}; cart.forEach(i=>{ (grouped[i.BusinessID]=grouped[i.BusinessID]||[]).push(i); });
+  const orderIDs = []; const sellerEmails = [];
+  for(const [businessID, items] of Object.entries(grouped)){
+    const shop = shops.find(s=>String(s.BusinessID)===String(businessID)) || {};
+    const shopCouriers = getCouriersList(shop.Couriers);
+    const selectedCourier = mode.value==='Cash on Delivery' ? (shopCouriers[0] || '') : '';
+    const payload = {action:'placeOrder', BusinessID:businessID, Customer:cName.value.trim(), Email:cEmail.value.trim(), Contact:cContact.value.trim(), Address:buildAddress(), Payment:payment.value, Items:JSON.stringify(items), Total:items.reduce((a,b)=>a+b.Price*b.Qty,0), Date:new Date().toLocaleString(), Mode:mode.value, Courier:selectedCourier, Proof:payment.value==='GCash'?proof.value.trim():'', FinalAddr:mode.value==='Cash on Pickup' ? (shop.PickupAddr||'') : buildAddress(), SellerEmail:shop.Email||'', StoreName:shop.Name||''};
+    const res = await api(payload, 'Placing order...');
+    if(res.orderID) orderIDs.push(res.orderID);
+    if(shop.Email) sellerEmails.push(shop.Email);
+  }
+  const uniqueSellerEmails = [...new Set(sellerEmails)];
+  const mail = await api({action:'sendCheckoutEmail', to:cEmail.value.trim(), orderIDs:orderIDs.join(', '), sellerEmails: uniqueSellerEmails.join(',')}, 'Sending order emails...');
+  if(!mail?.ok) toast(mail?.message || 'Unable to send order email.');
+  showOrderModal(orderIDs.join(', '));
+  cart=[]; renderCart();
+}
+
+async function trackOrder(){ const id = trackId.value.trim(); if(!id) return; const r = await api({action:'trackOrder', orderID:id}, 'Tracking order...'); trackResult.innerHTML = (!r || !r.OrderID) ? 'Order not found.' : renderTrackingResult(r); }
+
+async function handleSellerLogin(){
+  const payload = { action:'sellerLogin', Email:sEmail.value.trim(), BusinessID:sBusinessID.value.trim(), Password:sPassword.value };
+  const res = await api(payload, 'Signing in seller...');
+  if(!res.ok){ toast(res.message || 'Invalid login'); return; }
+  sellerData = res.seller;
+  sellerCouriers = getCouriersList(sellerData?.Couriers);
+  document.getElementById('sellerLoginPanel').classList.add('hidden');
+  document.getElementById('sellerDash').classList.remove('hidden');
+  document.getElementById('walletValue').textContent = Number(sellerData.Wallet||0).toFixed(2);
+  document.getElementById('sellerMeta').textContent = `${sellerData.Name} (${sellerData.BusinessID})`;
+  syncAgreementFields();
+  renderCourierManager();
+  showSellerMainTab('overview');
+  await loadSellerData();
+  startSellerRealtimeRefresh();
+}
+
+function parseItems(itemsRaw){ try { return JSON.parse(itemsRaw || '[]'); } catch (e) { return []; } }
+function renderTrackingResult(order){
+  const items = parseItems(order.Items);
+  const { status, remark } = splitStatusParts(order.Status);
+  const rows = items.map(i => { const qty = Number(i.Qty || 1); const subtotal = Number(i.Price || 0) * qty; return `<tr><td>${i.Name || '-'}</td><td>${qty}</td><td>${fmt(subtotal)}</td></tr>`; }).join('') || `<tr><td colspan='3' class='muted'>No item details</td></tr>`;
+  return `<div class='box' style='box-shadow:none;border:1px solid #dbeafe;margin:0'><div style='font-weight:800;margin-bottom:6px'>Order: ${order.OrderID || '-'}</div><div class='muted' style='margin-bottom:4px'>Current status: ${status || '-'}</div><div class='muted' style='margin-bottom:4px'>Pickup Address: ${toClickableHtml(order.FinalAddr || order.Address || '-')}</div>${remark ? `<div class='muted' style='margin-bottom:8px'>Remarks: ${toClickableHtml(remark)}</div>` : `<div style='margin-bottom:8px'></div>`}<div><b>Timeline</b>${timelineToHtml(order.StatusHistory)}</div><div class='table-wrap'><table class='items-table'><thead><tr><th>Item</th><th>Qty</th><th>Subtotal</th></tr></thead><tbody>${rows}</tbody></table></div><div class='line' style='margin-top:8px'><b>Grand Total</b><b>${fmt(order.Total || 0)}</b></div></div>`;
+}
+
+function renderOrderMetaColumns(o){
+  const { status, remark } = splitStatusParts(o.Status);
+  const rows = [['Order ID', o.OrderID || '-'],['Customer', o.Customer || '-'],['Pickup Address', toClickableHtml(o.FinalAddr || o.Address || '-')],['Courier', o.Courier || '-'],['Mode', o.Mode || '-'],['Payment', o.Payment || '-'],['Status', status || '-'],['Remarks', toClickableHtml(remark || '-')],['Ref/Proof', toClickableHtml(o.Proof || '-')],['Contact', toClickableHtml(o.Contact || '-')],['Email', toClickableHtml(o.Email || '-')],['Date', o.Date || '-'],['Total', fmt(o.Total || 0)]];
+  return `<div class='table-wrap'><table class='items-table'><tbody>${rows.map(([a,b])=>`<tr><th style="width:38%">${a}</th><td>${b}</td></tr>`).join('')}</tbody></table></div><div style='margin-top:8px'><b>Timeline</b>${timelineToHtml(o.StatusHistory)}</div>`;
+}
+
+function clearHistoryFilters(){ historySearch.value = ''; historyStatus.value = 'all'; historySort.value = 'latest'; renderSellerHistory(); }
+function renderOrderItemsTable(itemsRaw){ const items = parseItems(itemsRaw); if(!items.length) return '<div class="muted">No item details</div>'; const rows = items.map(i => `<tr><td>${i.Name || '-'}</td><td>${Number(i.Qty || 1)} × ${fmt(i.Price || 0)}</td></tr>`).join(''); return `<div class="table-wrap"><table class="items-table"><thead><tr><th>Product</th><th>Qty × Price</th></tr></thead><tbody>${rows}</tbody></table></div>`; }
+
+
+function safeLine(v){ return String(v == null ? '-' : v).replace(/\s+/g,' ').trim() || '-'; }
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines){
+  const words = String(text || '').split(/\s+/).filter(Boolean);
+  let line = '';
+  let lines = 0;
+  for(let i=0;i<words.length;i++){
+    const test = line ? (line + ' ' + words[i]) : words[i];
+    if(ctx.measureText(test).width > maxWidth && line){
+      ctx.fillText(line, x, y);
+      y += lineHeight;
+      lines += 1;
+      line = words[i];
+      if(maxLines && lines >= maxLines) return y;
+    } else {
+      line = test;
+    }
+  }
+  if(line && (!maxLines || lines < maxLines)){
+    ctx.fillText(line, x, y);
+    y += lineHeight;
+  }
+  return y;
+}
+function downloadWaybill(orderID){
+  const order = sellerOrdersData.find(o => String(o.OrderID) === String(orderID));
+  if(!order){ toast('Order not found for waybill.'); return; }
+  if(typeof html2canvas !== 'function'){ toast('Waybill renderer unavailable.'); return; }
+
+  const shopName = safeLine(sellerData?.Name || currentShop?.Name || 'Shop');
+  const shopAddr = safeLine(sellerData?.PickupAddr || sellerData?.Address || '-');
+  const shopEmail = safeLine(sellerData?.Email || '-');
+  const mode = safeLine(order.Mode);
+  const status = safeLine(baseStatus(order.Status));
+  const customer = safeLine(order.Customer);
+  const addr = safeLine(order.FinalAddr || order.Address);
+  const contact = safeLine(order.Contact);
+  const email = safeLine(order.Email);
+  const items = parseItems(order.Items);
+  const rows = (items.length ? items : [{Name:'-', Qty:0, Price:0}]).map(i=>{
+    const qty = Number(i.Qty || 0);
+    const subtotal = Number(i.Price || 0) * qty;
+    return `<tr><td>${escapeHtml(i.Name || '-')}</td><td>${qty}</td><td>${fmt(subtotal)}</td></tr>`;
+  }).join('');
+
+  const root = document.getElementById('waybillRenderRoot');
+  const idSafe = safeLine(order.OrderID).replace(/[^a-zA-Z0-9_-]/g,'_');
+  root.innerHTML = `<div class="wb-card" id="wb-${idSafe}">
+    <div class="wb-head">
+      <div class="wb-shop">${escapeHtml(shopName)}</div>
+      <div class="wb-shop-info">${escapeHtml(shopAddr)}<br>${escapeHtml(shopEmail)}</div>
+    </div>
+    <div class="wb-orderid">${escapeHtml(safeLine(order.OrderID))}</div>
+    <div class="wb-section">
+      <div class="wb-label">Customer</div>
+      ${escapeHtml(customer)}<br>
+      ${escapeHtml(addr)}<br>
+      ${escapeHtml(contact)}<br>
+      ${escapeHtml(email)}<br>
+      <b>${escapeHtml(mode)} • ${escapeHtml(status)}</b>
+    </div>
+    <div class="wb-section">
+      <table class="wb-table">
+        <tr><th>Item</th><th>QTY</th><th>Subtotal</th></tr>
+        ${rows}
+      </table>
+      <div class="wb-total">TOTAL: ${fmt(order.Total || 0)}</div>
+    </div>
+  </div>`;
+
+  const card = root.firstElementChild;
+  html2canvas(card,{scale:4,backgroundColor:'#ffffff'}).then(canvas=>{
+    const link = document.createElement('a');
+    link.download = `waybill-${idSafe}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    toast('Waybill downloaded (PNG).');
+    root.innerHTML = '';
+  }).catch(()=>{ toast('Unable to generate waybill PNG.'); root.innerHTML=''; });
+}
+
+function clearOrdersFilters(){
+  const searchEl = document.getElementById('ordersSearch');
+  const sortEl = document.getElementById('ordersSort');
+  if(searchEl) searchEl.value = '';
+  if(sortEl) sortEl.value = 'latest';
+  renderSellerOrders();
+}
+
+function renderSellerOrders(){
+  const q = (document.getElementById('ordersSearch')?.value || '').toLowerCase().trim();
+  const sort = document.getElementById('ordersSort')?.value || 'latest';
+  let rows = [...sellerOrdersData];
+  if(q){ rows = rows.filter(o => String(o.OrderID||'').toLowerCase().includes(q)); }
+  rows.sort((a,b)=>{
+    if(sort === 'status-az') return String(baseStatus(a.Status)||'').localeCompare(String(baseStatus(b.Status)||''));
+    if(sort === 'status-za') return String(baseStatus(b.Status)||'').localeCompare(String(baseStatus(a.Status)||''));
+    return parseDate(b.Date)-parseDate(a.Date);
+  });
+  sellerOrders.innerHTML = rows.map(o=>{ const key = safeKey(o.OrderID); return `<div class='box' style='box-shadow:none;border:1px solid #dbeafe'><div><b>${o.OrderID}</b> - ${o.Customer}</div><div class='muted'>${baseStatus(o.Status) || '-'}</div>${renderOrderMetaColumns(o)}${renderOrderItemsTable(o.Items)}<div class='field'><label>Status</label><select id='status-${key}'>${ORDER_STATUSES.map(s=>`<option ${baseStatus(o.Status)===s?'selected':''}>${s}</option>`).join('')}</select></div><div class='field'><label>Optional Remark (for email + tracking)</label><input id='remark-${key}' value="${escapeHtml(statusRemark(o.Status))}" placeholder='e.g. Please settle your payment.'></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px'><button class='btn outline' onclick="downloadWaybill('${o.OrderID}')"><i class='fa fa-download'></i> Download Waybill</button><button class='btn outline' onclick="updateOrderStatusFromUI('${o.OrderID}', '${key}')">Update Status</button></div></div>`; }).join('') || '<div class="muted">No orders</div>';
+}
+
+function renderSellerHistory(){
+  const q = (historySearch.value || '').toLowerCase().trim();
+  const status = historyStatus.value || 'all';
+  const sort = historySort.value || 'latest';
+  let rows = [...sellerOrdersData];
+  if(q){ rows = rows.filter(o => String(o.OrderID||'').toLowerCase().includes(q) || String(o.Customer||'').toLowerCase().includes(q)); }
+  if(status !== 'all') rows = rows.filter(o => baseStatus(o.Status) === status);
+  rows.sort((a, b) => { if(sort === 'oldest') return parseDate(a.Date) - parseDate(b.Date); if(sort === 'highest') return Number(b.Total||0) - Number(a.Total||0); if(sort === 'lowest') return Number(a.Total||0) - Number(b.Total||0); return parseDate(b.Date) - parseDate(a.Date); });
+  const totalSales = rows.reduce((n,o)=>n+Number(o.Total||0),0);
+  const totalItems = rows.reduce((n,o)=>n+parseItems(o.Items).reduce((x,i)=>x+Number(i.Qty||1),0),0);
+  const uniqueCustomers = new Set(rows.map(r => String(r.Customer || '').trim()).filter(Boolean)).size;
+  historySummary.innerHTML = `<div class='chip'><span>Orders</span><b>${rows.length}</b></div><div class='chip'><span>Sales</span><b>${fmt(totalSales)}</b></div><div class='chip'><span>Items</span><b>${totalItems}</b></div><div class='chip'><span>Customers</span><b>${uniqueCustomers}</b></div>`;
+  sellerHistory.innerHTML = rows.map(h => `<details class='box' style='box-shadow:none;border:1px solid #dbeafe'><summary><b>${h.OrderID}</b> • ${h.Customer || '-'} • ${baseStatus(h.Status) || '-'} • ${fmt(h.Total)}</summary><div class='muted' style='margin-top:8px'><div><b>Date:</b> ${h.Date || '-'}</div><div><b>Status:</b> ${baseStatus(h.Status) || '-'}</div><div><b>Remarks:</b> ${toClickableHtml(statusRemark(h.Status) || '-')}</div><div><b>Payment:</b> ${h.Payment || '-'}</div><div><b>Mode:</b> ${h.Mode || '-'}</div><div><b>Courier:</b> ${h.Courier || '-'}</div><div><b>Pickup Address:</b> ${h.FinalAddr || h.Address || '-'}</div><div><b>Contact:</b> ${h.Contact || '-'} | <b>Email:</b> ${h.Email || '-'}</div></div><div><b>Timeline</b>${timelineToHtml(h.StatusHistory)}</div>${renderOrderItemsTable(h.Items)}</details>`).join('') || 'No matching order history.';
+}
+
+function copyText(value){ navigator.clipboard?.writeText(value); toast('Link copied'); }
+function appBaseUrl(){ return window.location.origin + window.location.pathname; }
+function getShopLink(businessID){ return `${appBaseUrl()}?shop=${encodeURIComponent(businessID)}`; }
+function getProductLink(listingID){ return `${appBaseUrl()}?product=${encodeURIComponent(listingID)}`; }
+function showLinksTab(tab){ linksTabShop.classList.toggle('active', tab === 'shop'); linksTabProduct.classList.toggle('active', tab === 'product'); shopLinkPane.classList.toggle('hidden', tab !== 'shop'); productLinksPane.classList.toggle('hidden', tab !== 'product'); }
+function renderSellerLinks(){ if(!sellerData) return; const shopLink = getShopLink(sellerData.BusinessID); shopLinkPane.innerHTML = `<div class='copy-row'><input readonly value='${shopLink}'><button class='btn outline' onclick="copyText('${shopLink}')">Copy</button></div>`; productLinksPane.innerHTML = sellerProductsData.map(p => { const link = getProductLink(p.ListingID); return `<div class='box' style='box-shadow:none;border:1px solid #dbeafe;margin:8px 0'><div><b>${p.Name || p.ListingID}</b></div><div class='copy-row'><input readonly value='${link}'><button class='btn outline' onclick="copyText('${link}')">Copy</button></div></div>`; }).join('') || '<div class="muted">No products available for link sharing.</div>'; }
+
+function showSellerMainTab(tab){
+  const tabs = ['overview','security','products','orders','history','delete','agreement'];
+  tabs.forEach(t => document.getElementById(`sellerMain${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.toggle('active', t===tab));
+  document.getElementById('sellerPaneOverview').classList.toggle('hidden', tab!=='overview');
+  document.getElementById('sellerPaneSecurity').classList.toggle('hidden', tab!=='security');
+  document.getElementById('sellerPaneProducts').classList.toggle('hidden', tab!=='products');
+  document.getElementById('sellerPaneOrders').classList.toggle('hidden', tab!=='orders');
+  document.getElementById('sellerPaneHistory').classList.toggle('hidden', tab!=='history');
+  document.getElementById('sellerPaneDelete').classList.toggle('hidden', tab!=='delete');
+  document.getElementById('sellerPaneAgreement').classList.toggle('hidden', tab!=='agreement');
+}
+
+function isEditingOrders(){
+  const active = document.activeElement;
+  if(!active || !active.id) return false;
+  return active.id === 'ordersSearch' || active.id === 'ordersSort' || active.id.startsWith('status-') || active.id.startsWith('remark-');
+}
+
+function startSellerRealtimeRefresh(){
+  stopSellerRealtimeRefresh();
+  sellerRealtimeTimer = setInterval(async ()=>{
+    if(!sellerData || sellerRealtimeBusy || document.hidden) return;
+    if(!document.getElementById('sellerSection') || document.getElementById('sellerSection').classList.contains('hidden')) return;
+    if(isEditingOrders()) return;
+    try{ sellerRealtimeBusy = true; await loadSellerData(true); } finally { sellerRealtimeBusy = false; }
+  }, 10000);
+}
+function stopSellerRealtimeRefresh(){ if(sellerRealtimeTimer){ clearInterval(sellerRealtimeTimer); sellerRealtimeTimer = null; } }
+
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) return; if(sellerData && !isEditingOrders()) loadSellerData(true); });
+
+function renderCourierManager(){
+  const container = document.getElementById('courierManagerList');
+  if(!container) return;
+  if(!sellerCouriers.length){ container.innerHTML = `<div class='muted'>No courier set. COD delivery is disabled.</div>`; return; }
+  container.innerHTML = sellerCouriers.map((name, idx)=>`<span class='courier-chip'><i class='fa ${courierIconClass(name)}'></i>${escapeHtml(name)} <button class='qty-btn' onclick='removeCourierFromUI(${idx})'><i class='fa fa-xmark'></i></button></span>`).join('');
+}
+function toggleCustomCourierInput(){
+  customCourierField.classList.toggle('hidden', courierPreset.value !== '__custom__');
+}
+function addCourierFromUI(){
+  if(!sellerData) return;
+  if(sellerCouriers.length >= 3){ toast('Max 3 couriers only.'); return; }
+  const preset = courierPreset.value;
+  const name = normalizeCourierName(preset === '__custom__' ? customCourierInput.value : preset);
+  if(!name){ toast('Choose or type a courier.'); return; }
+  if(sellerCouriers.some(c => c.toLowerCase() === name.toLowerCase())){ toast('Courier already added.'); return; }
+  sellerCouriers.push(name);
+  courierPreset.value = '';
+  customCourierInput.value = '';
+  toggleCustomCourierInput();
+  renderCourierManager();
+}
+function removeCourierFromUI(idx){
+  sellerCouriers.splice(idx, 1);
+  renderCourierManager();
+}
+async function saveSellerCouriers(){
+  if(!sellerData) return;
+  const res = await api({ action:'updateBusinessCouriers', businessID:sellerData.BusinessID, couriers:sellerCouriers }, 'Saving couriers...');
+  if(!res.ok){ toast(res.message || 'Unable to save couriers.'); return; }
+  sellerCouriers = Array.isArray(res.couriers) ? res.couriers : getCouriersList(sellerCouriers.join(','));
+  sellerData.Couriers = sellerCouriers.join(', ');
+  shops = shops.map(s => String(s.BusinessID) === String(sellerData.BusinessID) ? { ...s, Couriers: sellerData.Couriers } : s);
+  if(currentShop && String(currentShop.BusinessID) === String(sellerData.BusinessID)) currentShop.Couriers = sellerData.Couriers;
+  renderCourierManager();
+  refreshPaymentOptions();
+  toast('Couriers updated.');
+}
+
+async function changeSellerPassword(){
+  if(!sellerData) return;
+  const current = currentPassword.value.trim();
+  const nextPass = newPassword.value.trim();
+  const confirm = confirmPassword.value.trim();
+  if(!current || !nextPass || !confirm){ toast('Fill all password fields'); return; }
+  if(nextPass.length < 8){ toast('New password must be at least 8 chars'); return; }
+  if(nextPass !== confirm){ toast('Password confirmation does not match'); return; }
+  const res = await api({ action:'changeSellerPassword', BusinessID:sellerData.BusinessID, currentPassword:current, newPassword:nextPass }, 'Updating password...');
+  if(!res.ok){ toast(res.message || 'Unable to change password'); return; }
+  currentPassword.value=''; newPassword.value=''; confirmPassword.value=''; toast('Password updated');
+}
+
+async function loadSellerData(silent=false){
+  if(!sellerData) return;
+  const [products, ordersRaw, refreshedBusinesses] = await Promise.all([
+    api({action:'getListings', businessID:sellerData.BusinessID, includeInactive:true}, silent ? '' : 'Loading products...'),
+    api({action:'getOrdersByBusiness', businessID:sellerData.BusinessID}, silent ? '' : 'Loading orders...'),
+    api({action:'getBusinesses'}, silent ? '' : 'Refreshing business info...')
+  ]);
+  const refreshedSeller = (Array.isArray(refreshedBusinesses) ? refreshedBusinesses : []).find(b => String(b.BusinessID)===String(sellerData.BusinessID));
+  if(refreshedSeller){ sellerData = { ...sellerData, ...refreshedSeller }; sellerCouriers = getCouriersList(sellerData.Couriers); syncAgreementFields(); renderCourierManager(); }
+  const orders = (Array.isArray(ordersRaw) ? ordersRaw : []).sort((a,b)=>parseDate(b.Date)-parseDate(a.Date));
+  sellerProductsData = Array.isArray(products) ? products : [];
+  sellerProducts.innerHTML = sellerProductsData.map(p=>{ const isDeactivated = String(p.Status||'').toUpperCase()==='DEACTIVATED'; return `<div class='box' style='box-shadow:none;border:1px solid #dbeafe'><div><b>${p.Name}</b> (${fmt(p.Price)})</div><div class='muted'>Status: ${p.Status || '-'}</div>${isDeactivated ? `<div class='muted' style='margin-top:6px'>Listing is deactivated.</div>` : `<button class='btn outline' style='margin-top:8px' onclick="deactivateListing('${p.ListingID}')">Deactivate Listing</button>`}</div>`; }).join('') || 'No products';
+  const pending = (orders||[]).filter(o=>baseStatus(o.Status)==='Pending').length;
+  const processing = (orders||[]).filter(o=>['Paid','Preparing','Ready for Pickup','Ready for Delivery','Shipped','In Transit','Out for Delivery'].includes(baseStatus(o.Status))).length;
+  const completed = (orders||[]).filter(o=>['Delivered','Picked-up','Completed'].includes(baseStatus(o.Status))).length;
+  const cancelled = (orders||[]).filter(o=>['Cancelled','Cancelled due to duplicate order'].includes(baseStatus(o.Status))).length;
+  sellerStats.innerHTML = `<div class='stat'><span class='muted'>Pending</span><b>${pending}</b></div><div class='stat'><span class='muted'>Processing</span><b>${processing}</b></div><div class='stat'><span class='muted'>Completed</span><b>${completed}</b></div><div class='stat'><span class='muted'>Cancelled</span><b>${cancelled}</b></div>`;
+  sellerOrdersData = Array.isArray(orders) ? orders : [];
+  if(!isEditingOrders()) renderSellerOrders();
+  const statusOptions = ['all', ...new Set(sellerOrdersData.map(o => baseStatus(o.Status)).filter(Boolean))];
+  historyStatus.innerHTML = statusOptions.map(s => `<option value='${s}'>${s === 'all' ? 'All Statuses' : s}</option>`).join('');
+  renderSellerLinks(); renderSellerHistory();
+}
+
+
+async function deactivateListing(listingID){
+  if(!sellerData || !listingID) return;
+  const ok = confirm('Deactivate this listing? It will be marked as DEACTIVATED.');
+  if(!ok) return;
+  const res = await api({action:'deactivateListing', businessID:sellerData.BusinessID, listingID}, 'Deactivating listing...');
+  if(res.ok){ toast('Listing deactivated'); await loadSellerData(); }
+  else { toast(res.message || 'Unable to deactivate'); }
+}
+
+function updateOrderStatusFromUI(orderID, key){ const status = document.getElementById(`status-${key}`)?.value || ''; const remark = document.getElementById(`remark-${key}`)?.value || ''; updateOrderStatus(orderID, status, remark); }
+async function updateOrderStatus(orderID, status, remark=''){ const res = await api({action:'updateOrderStatus', orderID, status, remark}, 'Updating order status...'); if(res.ok){ toast('Status updated'); await loadSellerData(); } }
+
+
+function showOrderModal(orderIDs){
+  orderModalID.textContent = orderIDs || '-';
+  document.getElementById('orderModal').style.display = 'block';
+}
+function closeOrderModal(){ document.getElementById('orderModal').style.display = 'none'; }
+function copyOrderIdFromModal(){
+  const value = document.getElementById('orderModalID').textContent || '';
+  navigator.clipboard?.writeText(value);
+  toast('Order ID copied. Please take a screenshot.');
+}
+
+
+function syncAgreementFields(){
+  if(!sellerData) return;
+  const sellerInput = document.getElementById('agreementSellerName');
+  const businessInput = document.getElementById('agreementBusinessName');
+  const businessIDInput = document.getElementById('agreementBusinessID');
+  const emailInput = document.getElementById('agreementEmail');
+  if(sellerInput && !sellerInput.value.trim()) sellerInput.value = sellerData.OwnerName || sellerData.ContactPerson || sellerData.Name || '';
+  if(businessInput) businessInput.value = sellerData.Name || '';
+  if(businessIDInput) businessIDInput.value = sellerData.BusinessID || '';
+  if(emailInput) emailInput.value = sellerData.Email || '';
+}
+function sellerAgreementBody(sellerName){
+  const effectiveDate = new Date().toLocaleDateString('en-PH');
+  const businessName = escapeHtml(sellerData?.Name || '-');
+  const businessID = escapeHtml(sellerData?.BusinessID || '-');
+  const sellerEmail = escapeHtml(sellerData?.Email || '-');
+  const safeSeller = escapeHtml(sellerName || '-');
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>BlueCart Seller Agreement</title><style>body{font-family:Arial,sans-serif;line-height:1.35;padding:24px;color:#111}h1{font-size:22px;margin:0 0 10px}h2{font-size:16px;margin:14px 0 6px}p,li{font-size:13px;margin:4px 0}hr{margin:10px 0}.meta{background:#f5f9ff;border:1px solid #cfe2ff;border-radius:8px;padding:10px;margin:10px 0}.foot{margin-top:14px;font-size:12px;color:#444}</style></head><body><h1>BLUECART MARKETPLACE SELLER AGREEMENT</h1><div class="meta"><p><b>Date Printed:</b> ${effectiveDate}</p><p><b>Seller Name:</b> ${safeSeller}</p><p><b>Business Name:</b> ${businessName}</p><p><b>Business ID:</b> ${businessID}</p><p><b>Email:</b> ${sellerEmail}</p></div><p>This Seller Agreement ("Agreement") is entered into between <b>BlueCart Marketplace</b> ("Platform") and the registered Seller ("Seller").</p><p>By registering or logging in to the BlueCart Seller Center, the Seller agrees to comply with the following terms.</p><hr><h2>1. Platform Overview</h2><p>BlueCart Marketplace is an online platform that allows registered sellers to display products and receive customer orders through the BlueCart web application.</p><p>The platform provides the following services:</p><ul><li>Product listing and management</li><li>Customer checkout system</li><li>Order tracking and status management</li><li>Courier selection and delivery options</li><li>Wallet and sales tracking</li><li>Waybill generation</li><li>Email notifications for orders</li></ul><p>BlueCart acts only as a <b>digital marketplace platform</b> and is not the direct seller of listed products.</p><h2>2. Seller Registration</h2><p>To access the Seller Center, the Seller must provide accurate information including Business Name, Business ID, Email Address, Password, Courier information, and payment details (if applicable).</p><p>The Seller is responsible for maintaining the confidentiality of their login credentials. BlueCart is not liable for unauthorized access due to negligence by the Seller.</p><h2>3. Product Listings</h2><p>Sellers may submit product listings for approval or upload. Listings must include Product Name, Description, Price, Image, and Stock Quantity.</p><p>The Seller agrees that all listings are accurate and lawful, products are in stock when listed, and displayed prices are correct. BlueCart reserves the right to deactivate listings that violate marketplace policies.</p><h2>4. Order Processing</h2><p>When a customer places an order: (1) order is recorded in Seller Center, (2) Seller receives email notification, (3) Seller updates status accordingly.</p><p>Available statuses: Pending, Paid, Preparing, Ready for Pickup, Ready for Delivery, Shipped, In Transit, Out for Delivery, Delivered, Completed, Cancelled.</p><h2>5. Delivery and Courier Management</h2><p>Sellers may configure up to <b>three couriers</b>. Supported options include LBC, J&T, and custom couriers. If no courier is configured, COD is disabled.</p><h2>6. Payment Methods</h2><p>Customers may choose COD, COP, or GCash. Sellers must verify GCash reference details before processing orders. BlueCart does not process payments directly and is not responsible for payment disputes.</p><h2>7. Waybill Generation</h2><p>Platform allows sellers to download a <b>3×3 inch waybill</b> containing shop details, order ID, customer details, item list, and order total. Sellers are responsible for attaching waybills.</p><h2>8. Seller Wallet and Sales Tracking</h2><p>Seller Center dashboard displays orders, sales summary, completed transactions, and history. Wallet value is tracked transactions and not funds held by BlueCart.</p><h2>9. Prohibited Products</h2><p>Sellers may not list illegal, counterfeit, dangerous, fraudulent, or misleading products. BlueCart may suspend or terminate violating accounts.</p><h2>10. Seller Responsibilities</h2><p>Seller agrees to fulfill orders promptly, provide accurate information, respond to customer concerns, and maintain professional conduct.</p><h2>11. Account Security</h2><p>Sellers must use strong passwords, protect credentials, and report suspicious activity immediately. BlueCart provides password change in Seller Center security settings.</p><h2>12. Account Deletion</h2><p>Sellers may request deletion through the official account deletion request page. BlueCart may retain transaction records for legal and operational purposes.</p><h2>13. Limitation of Liability</h2><p>BlueCart serves only as an online platform and is not liable for product quality issues, delivery delays, payment disputes, or seller-customer conflicts.</p><h2>14. Termination</h2><p>BlueCart may suspend or terminate a seller account for policy violations, fraud, or platform misuse.</p><h2>15. Modifications</h2><p>BlueCart may update this Agreement at any time. Continued Seller Center use constitutes acceptance of updates.</p><h2>16. Governing Law</h2><p>This Agreement is governed by the laws of the Republic of the Philippines.</p><hr><h2>Acceptance</h2><p>By registering as a seller or accessing the BlueCart Seller Center, the Seller acknowledges that they have read and agree to this Seller Agreement.</p><p>Seller Name: ${safeSeller}</p><p>Business Name: ${businessName}</p><p>Signature: Digitally-signed </p><p>Date: As indicated above</p><p class="foot">This is system-generated document. Validate through dev.jrce@gmail.com</p></body></html>`;
+}
+function printSellerAgreement(){
+  if(!sellerData) return toast('Please log in first.');
+  const sellerName = (document.getElementById('agreementSellerName')?.value || '').trim();
+  if(!sellerName) return toast('Please enter Seller Name.');
+  const win = window.open('', '_blank');
+  if(!win) return toast('Popup blocked. Allow popups to print agreement.');
+  win.document.open();
+  win.document.write(sellerAgreementBody(sellerName));
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{ win.print(); }, 350);
+}
+
+function applyDeepLink(){
+  const params = new URLSearchParams(window.location.search);
+  const shop = params.get('shop');
+  const product = params.get('product');
+  if(shop){ openShop(shop); return; }
+  if(product){ api({action:'getListings'}, 'Loading linked product...').then(items => { currentStoreProducts = Array.isArray(items) ? items : []; const p = currentStoreProducts.find(x => String(x.ListingID) === String(product)); if(p) openShop(p.BusinessID); }); }
+}
+
+loadShops().then(applyDeepLink);
+</script>
+</body>
+</html>
